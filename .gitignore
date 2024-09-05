@@ -168,3 +168,6 @@ coco.data
 
 # VSCode editor config
 .vscode/
+
+# YOLO Detection AI Models
+yolov8x.pt
