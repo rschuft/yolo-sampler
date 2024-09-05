@@ -2,15 +2,22 @@ import cv2
 import time
 from ultralytics import YOLO
 
-# Load the YOLOv8 model (use a pre-trained model, e.g., yolov8n)
+# Load the YOLOv8 model (use a pre-trained model, e.g., yolov8n, yolov8x, etc.)
 model = YOLO('yolov8x.pt')
 
 # Open the webcam (0 is the default camera, change if you have multiple cameras)
 cap = cv2.VideoCapture(0)
 
-# Initialize variables
-detection_time = 0.0
-prev_annotated_frame = None  # To store the last annotated frame
+if not cap.isOpened():
+    print("Error: Could not open webcam.")
+    exit()
+
+# Variables to store the last detection time and the bounding boxes
+last_detection_time = 0
+detection_interval = 0.1  # 100ms interval between detections
+
+# Variable to store previous detections (bounding boxes and labels)
+prev_boxes = []  # Format: [(x1, y1, x2, y2, label, confidence), ...]
 
 while cap.isOpened():
     # Capture frame-by-frame
@@ -19,42 +26,39 @@ while cap.isOpened():
         print("Failed to grab frame")
         break
 
-    # Start measuring time before detection
-    start_time = time.time()
+    # Get current time
+    current_time = time.time()
 
-    # Perform detection if it's time for it
-    if detection_time <= 0:
-        # Run the YOLO model to detect objects in the frame
+    # Run detection every 100ms
+    if current_time - last_detection_time >= detection_interval:
+        # Perform object detection
         results = model(frame)
 
-        # Annotate detections on the frame
-        prev_annotated_frame = results[0].plot()  # Save the annotated frame
+        # Extract bounding boxes, labels, and confidence scores
+        prev_boxes = []
+        for r in results[0].boxes:
+            box = r.xyxy[0]  # Bounding box in (x1, y1, x2, y2) format
+            label = model.names[int(r.cls)]  # Object label
+            confidence = float(r.conf)  # Confidence score
+            prev_boxes.append((box[0], box[1], box[2], box[3], label, confidence))
 
-        # Stop measuring time after detection
-        detection_time = time.time() - start_time
+        # Update the last detection time
+        last_detection_time = current_time
 
-        # Wait for 2x detection time before next detection
-        throttle_delay = 2 * detection_time
-    else:
-        # Skip detection, use previous annotated frame
-        annotated_frame = prev_annotated_frame
+    # Overlay previous bounding boxes on the current frame
+    for (x1, y1, x2, y2, label, confidence) in prev_boxes:
+        # Draw bounding box
+        cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+        # Put label and confidence
+        label_text = f"{label} {confidence:.2f}"
+        cv2.putText(frame, label_text, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        # Display the resulting frame with previous annotations
-        cv2.imshow('YOLOv8 Object Detection (Throttled)', annotated_frame)
-
-        # Decrease detection_time counter
-        detection_time -= 1 / 30  # Assuming ~30 FPS for the webcam
-
-    # Display the current frame (annotated with previous detection)
-    if prev_annotated_frame is not None:
-        cv2.imshow('YOLOv8 Object Detection (Throttled)', prev_annotated_frame)
+    # Display the current frame with the overlaid bounding boxes
+    cv2.imshow('YOLOv8 Object Detection', frame)
 
     # Break the loop if 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
-    # Sleep for a short time to simulate frame rate (can be adjusted)
-    time.sleep(1 / 30)
 
 # Release the capture and close windows
 cap.release()
