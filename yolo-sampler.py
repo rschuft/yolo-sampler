@@ -3,7 +3,7 @@ import time
 from ultralytics import YOLO
 
 # Load the YOLOv8 model (use a pre-trained model, e.g., yolov8n)
-model = YOLO('yolov8n.pt')
+model = YOLO('yolov8x.pt')
 
 # Open the webcam (0 is the default camera, change if you have multiple cameras)
 cap = cv2.VideoCapture(0)
