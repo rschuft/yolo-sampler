@@ -1,0 +1,17 @@
+# Capture device index (0 is the default camera, change if you have multiple cameras)
+device_index: 0
+
+# Capture device resolution (this will reduce to what the camera is capable of automatically)
+# Default to 4k resolution/high resolution
+width: 3840
+height: 2160
+
+# Delay between detection attempts in seconds
+detection_interval: 0.25  # 250 ms interval between detections
+
+# Maximum number of points to keep in the track history
+max_track_length: 30
+
+# Model name of the YOLOv8 model (use a pre-trained model, e.g., yolov8n, yolov8x, etc.)
+# The model will automatically download if it is not available in the script directory
+tracking_model_name: 'yolov8x.pt'
