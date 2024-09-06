@@ -1,15 +1,30 @@
-import cv2
+# System imports
+import platform
 import time
+
+# Third-party imports
+import cv2
 from ultralytics import YOLO
 
 # Load the YOLOv8 model (use a pre-trained model, e.g., yolov8n, yolov8x, etc.)
 model = YOLO('yolov8x.pt')
 
-# Open the webcam (0 is the default camera, change if you have multiple cameras)
-cap = cv2.VideoCapture(0)
+# Open the webcam 
+index = 0 # capture device index (0 is the default camera, change if you have multiple cameras)
+cap = cv2.VideoCapture(index)
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
+
+# 4k resolution/high resolution
+width = 3840
+height = 2160
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+# width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+# height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+# _, frame = cap.read()
+# height, width = frame.shape[:2]
 
 # Variables to store the last detection time and the bounding boxes
 last_detection_time = 0
@@ -36,7 +51,7 @@ while cap.isOpened():
         # Perform object tracking instead of just detection
         results = model.track(source=frame, persist=True, stream=True, verbose=False)
 
-        # Extract bounding boxes, labels, and confidence scores
+        # Extract bounding boxes, labels, confidence scores, and tracking identifiers (if available)
         prev_boxes = []
         for r in results:
             for rbox in r.boxes:
