@@ -18,3 +18,7 @@ tracking_model_name: 'yolov8x.pt'
 
 # Frame label to display on the window
 frame_label: 'Object Tracking'
+
+# Colors for overlaying information on the frame
+annotation_color: [0, 255, 0]  # Green color for annotations
+path_color: [230, 230, 230]  # Gray color for path lines
