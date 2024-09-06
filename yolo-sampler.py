@@ -48,7 +48,7 @@ while cap.isOpened():
     # Get current time
     current_time = time.time()
 
-    # Run detection every 100ms
+    # Run detection every N ms
     if current_time - last_detection_time >= detection_interval:
         # Perform object tracking on the current frame
         results = model.track(source=frame, persist=True, stream=True, verbose=False)
