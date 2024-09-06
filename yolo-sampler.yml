@@ -15,3 +15,6 @@ max_track_length: 30
 # Model name of the YOLOv8 model (use a pre-trained model, e.g., yolov8n, yolov8x, etc.)
 # The model will automatically download if it is not available in the script directory
 tracking_model_name: 'yolov8x.pt'
+
+# Frame label to display on the window
+frame_label: 'Object Tracking'
